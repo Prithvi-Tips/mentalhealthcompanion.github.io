@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mental Health Companion</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f0f4f8; /* Light background */
+      color: #333;
+      text-align: center;
+      padding: 50px;
+      margin: 0;
+    }
+
+    /* Enlarged Animated Title with Improved Fading Colors */
+    h1 {
+      margin-bottom: 20px;
+      font-size: 60px; /* Enlarged font size */
+      color: white;
+      position: relative;
+      display: inline-block;
+      padding: 20px;
+      border-radius: 10px;
+      animation: fadeColor 5s infinite; /* Color change animation */
+      background: linear-gradient(90deg, #ffeb3b, #ff5722); /* Gradient background */
+      -webkit-background-clip: text; /* Clip background to text */
+      -webkit-text-fill-color: transparent; /* Fill text with transparent color */
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+      transform: scale(1.05); /* Slightly enlarge on hover */
+    }
+
+    #output, #moodFeedback, #satisfactionFeedback, #affirmationBox, #dailyChallengeResponse {
+      margin-top: 20px;
+      font-size: 20px;
+      min-height: 50px; /* Maintain space for output */
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px; /* Rounded corners */
+      background-color: #ffffff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+      transition: box-shadow 0.3s;
+    }
+
+    #output:hover, #moodFeedback:hover, #satisfactionFeedback:hover, #affirmationBox:hover {
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); /* Darker shadow on hover */
+    }
+
+    #moodSelector, #satisfactionSelector {
+      margin-top: 20px;
+    }
+
+    #moodFeedback {
+      background-color: #e7f3fe;
+      border-color: #b3d4fc;
+    }
+
+    #satisfactionFeedback {
+      background-color: #fff3cd;
+      border-color: #ffeeba;
+    }
+
+    #affirmationBox {
+      background-color: #e0f7fa;
+      border-color: #80deea;
+      margin-top: 40px; /* Move affirmation box lower */
+    }
+
+    #spotifyPlaylist {
+      background-color: #fff; /* Remove background */
+      padding: 10px;
+      border-radius: 10px; /* Rounded corners */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Mental Health Companion</h1>
+
+  <!-- Start Listening Button -->
+  <button id="startListening" style="display: block; margin: 20px auto;">Start Listening</button>
+  <p id="output"></p>
+
+  <!-- Mood Selector -->
+  <div id="moodSelector">
+    <label for="mood">Select your mood:</label>
+    <select id="mood">
+      <option value="">--Choose an emoji--</option>
+      <option value="😊">😊 Happy</option>
+      <option value="😢">😢 Sad</option>
+      <option value="😟">😟 Anxious</option>
+      <option value="😠">😠 Angry</option>
+      <option value="😌">😌 Relaxed</option>
+      <option value="😴">😴 Tired</option>
+      <option value="😕">😕 Confused</option>
+      <option value="😖">😖 Frustrated</option>
+      <option value="😰">😰 Stressed</option>
+      <option value="😇">😇 Hopeful</option>
+    </select>
+    <button id="submitMood">Submit Mood</button>
+  </div>
+
+  <!-- Mood Feedback Box -->
+  <div id="moodFeedback"></div>
+
+  <!-- Satisfaction Selector -->
+  <div id="satisfactionSelector">
+    <label for="satisfaction">Are you satisfied?</label>
+    <select id="satisfaction">
+      <option value="">--Choose--</option>
+      <option value="satisfied">Satisfied</option>
+      <option value="notSatisfied">Not Satisfied</option>
+    </select>
+  </div>
+
+  <div id="satisfactionFeedback"></div>
+
+  <!-- Daily Challenge -->
+  <div id="dailyChallenge">
+    <h3>Daily Challenge:</h3>
+    <p>Write down three things you are grateful for today.</p>
+    <textarea id="dailyChallengeResponse" rows="4" cols="50" placeholder="Type your response here..."></textarea>
+  </div>
+
+  <!-- Spotify Playlist -->
+  <div id="spotifyPlaylist">
+    <h3>Relaxing Playlist:</h3>
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DZ06evO1GC3ja?utm_source=generator" width="100%" height="352" title="Relaxing Playlist" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  </div>
+
+  <!-- Affirmation Box -->
+  <div id="affirmationBox"></div>
+  <button id="nextAffirmation">Next Affirmation</button>
+  <button id="saveAffirmation">Save Affirmation</button>
+
+  <script>
+    const output = document.getElementById('output');
+    const moodSelector = document.getElementById('mood');
+    const submitMoodButton = document.getElementById('submitMood');
+    const moodFeedback = document.getElementById('moodFeedback');
+    const satisfactionSelector = document.getElementById('satisfaction');
+    const satisfactionFeedback = document.getElementById('satisfactionFeedback');
+    const affirmationBox = document.getElementById('affirmationBox');
+    const nextAffirmationButton = document.getElementById('nextAffirmation');
+    const saveAffirmationButton = document.getElementById('saveAffirmation');
+    const dailyChallengeResponse = document.getElementById('dailyChallengeResponse');
+
+    let affirmations = [
+      "You are enough.",
+      "It's okay to ask for help.",
+      "Your feelings are valid.",
+      "You are stronger than you think.",
+      "Every day is a new beginning.",
+      "Take a deep breath and let it go."
+    ];
+    
+    let currentAffirmationIndex = 0;
+
+    // Display affirmation on load
+    window.onload = () => {
+      displayAffirmation(currentAffirmationIndex);
+    };
+
+    // Mood Feedback
+    submitMoodButton.addEventListener('click', () => {
+      const mood = moodSelector.value;
+      let moodResponse = "";
+      switch (mood) {
+        case "😊":
+          moodResponse = "You're radiating positivity! Keep shining!";
+          break;
+        case "😢":
+          moodResponse = "It's okay to feel sad. Allow yourself to feel and process your emotions, maybe talk to family and friends.";
+          break;
+        case "😟":
+          moodResponse = "Anxiety can be overwhelming. Remember to breathe and take one step at a time.";
+          break;
+        case "😠":
+          moodResponse = "Anger is a valid emotion. Try to express it in a healthy way, like screaming into a pillow, or go to a rage room.";
+          break;
+        case "😌":
+          moodResponse = "You’re in a peaceful state. Hold onto that feeling!";
+          break;
+        case "😴":
+          moodResponse = "Rest is important. Ensure you're taking time for self-care.";
+          break;
+        case "😕":
+          moodResponse = "It's okay to be confused. Take a moment to gather your thoughts and really understand your situation.";
+          break;
+        case "😖":
+          moodResponse = "Frustration can be tough. It's okay to take a break, and not have it all figured out.";
+          break;
+        case "😰":
+          moodResponse = "Stress can be heavy. Make sure to prioritize relaxation, and take regular breaks to relieve stress.";
+          break;
+        case "😇":
+          moodResponse = "Hope is powerful. Keep nurturing that feeling!";
+          break;
+        default:
+          moodResponse = "Please select a mood.";
+      }
+      moodFeedback.innerText = moodResponse;
+    });
+
+    // Satisfaction Feedback
+    satisfactionSelector.addEventListener('change', () => {
+      const satisfaction = satisfactionSelector.value;
+      if (satisfaction === "notSatisfied") {
+        satisfactionFeedback.innerHTML = `
+          <p>We're sorry to hear that you're not satisfied. Here are some options to provide specific feedback:</p>
+          <ul>
+            <li><a href="#">Service was too slow</a></li>
+            <li><a href="#">Features were lacking</a></li>
+            <li><a href="#">More personalized support needed</a></li>
+          </ul>`;
+      } else {
+        satisfactionFeedback.innerText = "Thank you for your feedback!";
+      }
+    });
+
+    // Speech Recognition
+    document.getElementById('startListening').addEventListener('click', () => {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        output.innerText = "Listening...";
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        output.innerText = `You said: "${transcript}"`;
+        analyzeSpeech(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        output.innerText = `Error occurred in recognition: ${event.error}`;
+      };
+
+      recognition.start();
+    });
+
+    function analyzeSpeech(transcript) {
+      const feelings = {
+        "happy": "It's great to hear that you're feeling happy! Keep that positivity going!",
+        "sad": "Sadness is a part of life. Don't hesitate to reach out if you need to talk.",
+        "anxious": "It's normal to feel anxious. Remember to breathe deeply and take it one moment at a time.",
+        "angry": "Anger can be a powerful emotion. Make sure to channel it in healthy ways.",
+        "tired": "Feeling tired? Remember that rest is essential for mental well-being.",
+        "confused": "Confusion can be unsettling. It's okay to take your time figuring things out.",
+        "frustrated": "Frustration can be overwhelming. It's okay to step back and take a break.",
+        "stressed": "Stress can be debilitating. Find ways to unwind and relax.",
+        "hopeful": "Hope is a powerful motivator. Hold onto it tightly!"
+      };
+
+      let response = "I didn't catch that. Can you tell me more about how you're feeling?";
+      const lowerCaseTranscript = transcript.toLowerCase();
+
+      for (const [key, value] of Object.entries(feelings)) {
+        if (lowerCaseTranscript.includes(key)) {
+          response = value;
+          break;
+        }
+      }
+      output.innerText += `\n\nResponse: ${response}`;
+    }
+
+    // Next Affirmation
+    nextAffirmationButton.addEventListener('click', () => {
+      currentAffirmationIndex = (currentAffirmationIndex + 1) % affirmations.length;
+      displayAffirmation(currentAffirmationIndex);
+    });
+
+    // Save Affirmation
+    saveAffirmationButton.addEventListener('click', () => {
+      alert(`Saved: "${affirmations[currentAffirmationIndex]}"`);
+    });
+
+    // Display Affirmation
+    function displayAffirmation(index) {
+      affirmationBox.innerText = affirmations[index];
+    }
+  </script>
+</body>
+</html>
